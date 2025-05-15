@@ -39,11 +39,11 @@ esac
 echo "Checking MinIO bucket..."
 bucket_list=$(mc ls "$MINIO_ALIAS")
 case "$bucket_list" in
-    *"$MINIO_USER_BUCKET_NAME"*)
+    *"$MINIO_USER_BUCKET"*)
         echo "✅ MinIO bucket found"
         ;;
     *)
-        echo "ERROR: MinIO bucket $MINIO_USER_BUCKET_NAME not found"
+        echo "ERROR: MinIO bucket $MINIO_USER_BUCKET not found"
         exit 1
         ;;
 esac

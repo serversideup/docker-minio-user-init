@@ -41,7 +41,7 @@ We designed this image to work great in orchestrated deployments like Kubernetes
       MINIO_HOST: "https://minio.example.com:9000"
       MINIO_USER_ACCESS_KEY: "myaccesskey"
       MINIO_USER_SECRET_KEY: "mysecretkey"
-      MINIO_USER_BUCKET_NAME: "mybucket"
+      MINIO_USER_BUCKET: "mybucket"
       MINIO_USER_BUCKET_PERMISSIONS: "s3:ListBucket,s3:GetBucketLocation"
       MINIO_USER_OBJECT_PERMISSIONS: "s3:PutObject,s3:GetObject"
 ```
@@ -57,11 +57,11 @@ The following environment variables can be used to customize the MinIO user init
 | `MINIO_HOST` | MinIO server URL | ⚠️ Required |
 | `MINIO_USER_ACCESS_KEY` | The access key that uniquely identifies the new user, similar to a username. | ⚠️ Required |
 | `MINIO_USER_SECRET_KEY` | Secret key for the new user. This key should be unique, greater than 12 characters, and a complex mixture of characters, numerals, and symbols. | ⚠️ Required |
-| `MINIO_USER_BUCKET_NAME` | Name of the bucket to create | ⚠️ Required |
+| `MINIO_USER_BUCKET` | Name of the bucket to create | ⚠️ Required |
 | `MINIO_ALIAS` | Alias for the MinIO server | `minio` |
 | `MINIO_USER_BUCKET_PERMISSIONS` | Comma-separated list of bucket permissions | `s3:ListBucket,s3:GetBucketLocation,s3:ListBucketMultipartUploads` |
 | `MINIO_USER_OBJECT_PERMISSIONS` | Comma-separated list of object permissions | `s3:PutObject,s3:GetObject,s3:DeleteObject,s3:ListMultipartUploadParts,s3:AbortMultipartUpload` |
-| `MINIO_POLICY_PATH` | Path to the policy file. This file will be created if it doesn't exist or you can provide your own JSON by mounting to the `/policies` directory. | `/policies/readwrite-bucket-${MINIO_USER_BUCKET_NAME}.json` |
+| `MINIO_POLICY_PATH` | Path to the policy file. This file will be created if it doesn't exist or you can provide your own JSON by mounting to the `/policies` directory. | `/policies/readwrite-bucket-${MINIO_USER_BUCKET}.json` |
 | `MINIO_POLICY_NAME` | Name of the policy you want to create/update/overwrite in MinIO. If you don't provide this, we just use the file name of your policy (without the `.json`). | `basename "$MINIO_POLICY_PATH" .json` (and trimmed of any special characters) |
 | `DEBUG` | Enable debug mode | `false` |
 | `SLEEP` | Keep container running after initialization | `true` |
@@ -87,7 +87,7 @@ By default, we create a policy that looks like this:
         "s3:ListBucketMultipartUploads"
       ],
       "Resource": [
-        "arn:aws:s3:::${MINIO_USER_BUCKET_NAME}"
+        "arn:aws:s3:::${MINIO_USER_BUCKET}"
       ]
     },
     {
@@ -100,7 +100,7 @@ By default, we create a policy that looks like this:
         "s3:AbortMultipartUpload"
       ],
       "Resource": [
-        "arn:aws:s3:::${MINIO_USER_BUCKET_NAME}/*"
+        "arn:aws:s3:::${MINIO_USER_BUCKET}/*"
       ]
     }
   ]
@@ -123,7 +123,7 @@ By default, we create a policy that looks like this:
     -e MINIO_HOST="http://minio:9000" \
     -e MINIO_USER_ACCESS_KEY="myaccesskey" \
     -e MINIO_USER_SECRET_KEY="mysecretkey" \
-    -e MINIO_USER_BUCKET_NAME="mybucket" \
+    -e MINIO_USER_BUCKET="mybucket" \
    serversideup/minio-user-init:latest
    ```
 

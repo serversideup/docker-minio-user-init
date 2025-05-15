@@ -75,7 +75,7 @@ if ! check_alias_exists; then
 fi
 
 # Ensure bucket exists
-$mc_cmd mb "$MINIO_ALIAS/$MINIO_USER_BUCKET_NAME" --ignore-existing
+$mc_cmd mb "$MINIO_ALIAS/$MINIO_USER_BUCKET" --ignore-existing
 
 # Create policy if it doesn't exist
 if ! check_policy_exists; then

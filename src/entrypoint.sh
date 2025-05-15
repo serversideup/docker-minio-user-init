@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 MINIO_ACCESS_KEY_EXISTS=false
-MINIO_POLICY_PATH=${MINIO_POLICY_PATH:-"/policies/readwrite-bucket-${MINIO_USER_BUCKET_NAME}.json"}
+MINIO_POLICY_PATH=${MINIO_POLICY_PATH:-"/policies/readwrite-bucket-${MINIO_USER_BUCKET}.json"}
 MINIO_POLICY_NAME=$(basename "$MINIO_POLICY_PATH" .json | tr '[:upper:]' '[:lower:]' | tr -cd '[:alnum:]-_')
 
 export MINIO_POLICY_PATH
@@ -61,7 +61,7 @@ create_policy() {
         $bucket_permissions
       ],
       "Resource": [
-        "arn:aws:s3:::$MINIO_USER_BUCKET_NAME"
+        "arn:aws:s3:::$MINIO_USER_BUCKET"
       ]
     },
     {
@@ -70,7 +70,7 @@ create_policy() {
         $object_permissions
       ],
       "Resource": [
-        "arn:aws:s3:::$MINIO_USER_BUCKET_NAME/*"
+        "arn:aws:s3:::$MINIO_USER_BUCKET/*"
       ]
     }
   ]
@@ -108,7 +108,7 @@ validate_environment_variables() {
         MINIO_HOST
         MINIO_POLICY_PATH
         MINIO_USER_ACCESS_KEY
-        MINIO_USER_BUCKET_NAME
+        MINIO_USER_BUCKET
         MINIO_USER_BUCKET_PERMISSIONS
         MINIO_USER_OBJECT_PERMISSIONS
         MINIO_USER_SECRET_KEY
