@@ -28,12 +28,33 @@ debug_print() {
 
 sleep_or_exit() {
     if [ "$SLEEP" = "true" ]; then
-        echo "NOTICE: Sleeping indefinitely..."
-        sleep infinity
+        echo "✅ MinIO user, bucket, and policy created successfully. Sleeping indefinitely..."
+        # Start a background process and wait for it
+        # This will sleep until a signal is received
+        sleep infinity &
+        wait $!
     else
-        echo "NOTICE: Exiting..."
+        echo "✅ MinIO user, bucket, and policy created successfully. Exiting..."
         exit 0
     fi
+}
+
+check_alias_exists() {
+    local alias_list
+    alias_list=$($mc_cmd alias list)
+    case "$alias_list" in
+        *"$MINIO_ALIAS"*) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+check_policy_exists() {
+    local policy_list
+    policy_list=$($mc_cmd admin policy list)
+    case "$policy_list" in
+        *"$minio_policy_name"*) return 0 ;;
+        *) return 1 ;;
+    esac
 }
 
 ################################################################################
@@ -49,23 +70,23 @@ if [ "$MINIO_ACCESS_KEY_EXISTS" = "true" ]; then
 fi
 
 # Ensure alias is set
-if ! $mc_cmd alias list | grep -q "$MINIO_ALIAS"; then
+if ! check_alias_exists; then
     echo "ERROR: Alias $MINIO_ALIAS not found"
     exit 1
 fi
 
 # Ensure bucket exists
-$mc_cmd mb "$MINIO_ALIAS/$MINIO_BUCKET_NAME" --ignore-existing
+$mc_cmd mb "$MINIO_ALIAS/$MINIO_USER_BUCKET_NAME" --ignore-existing
 
 # Create policy if it doesn't exist
-if ! $mc_cmd admin policy list | grep -q "$minio_policy_name"; then
+if ! check_policy_exists; then
     echo "NOTICE: Policy $minio_policy_name not found. Creating..."
     $mc_cmd admin policy create "$MINIO_ALIAS" "$minio_policy_name" "$MINIO_POLICY_PATH"
 fi
 
 # Create user and apply policy
-$mc_cmd admin user create "$MINIO_ALIAS" "$MINIO_USER_ACCESS_KEY" "$minio_policy_name"
-$mc_cmd admin policy attach "$MINIO_ALIAS" "$minio_policy_name" "$MINIO_USER_ACCESS_KEY"
+$mc_cmd admin user add "$MINIO_ALIAS" "$MINIO_USER_ACCESS_KEY" "$minio_policy_name"
+$mc_cmd admin policy attach "$MINIO_ALIAS" "$minio_policy_name" --user "$MINIO_USER_ACCESS_KEY"
 
 # Sleep or exit
 sleep_or_exit

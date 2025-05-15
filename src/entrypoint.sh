@@ -85,6 +85,15 @@ debug_print() {
     fi
 }
 
+check_user_exists() {
+    local user_list
+    user_list=$(mc admin user ls "$MINIO_ALIAS")
+    case "$user_list" in
+        *"$MINIO_USER_ACCESS_KEY"*) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
 validate_environment_variables() {
     # Validate required environment variables
     required_vars="
@@ -98,7 +107,6 @@ validate_environment_variables() {
         MINIO_USER_BUCKET_PERMISSIONS
         MINIO_USER_OBJECT_PERMISSIONS
         MINIO_USER_SECRET_KEY
-        MINIO_USER_ACCESS_KEY
     "
 
     for var in $required_vars; do
@@ -138,7 +146,7 @@ cat <<"EOF"
                 ||     ||
 EOF
 echo "🌐 MinIO Host: $MINIO_HOST"
-echo "🔑 MinIO Access Key: $MINIO_ACCESS_KEY"
+echo "🔑 MinIO Access Key: $MINIO_USER_ACCESS_KEY"
 echo "📝 Policy Path: $MINIO_POLICY_PATH"
 echo "🛠️ MinIO Version:"
 mc --version
@@ -147,7 +155,7 @@ echo "-----------------------------------------------------------"
 set_mc_alias
 
 # Check to see if user exists
-if mc admin user ls "$MINIO_ALIAS" | grep -q "$MINIO_USER_ACCESS_KEY"; then
+if check_user_exists; then
     echo "NOTICE: Detected that user $MINIO_USER_ACCESS_KEY already exists."
     MINIO_ACCESS_KEY_EXISTS=true
     exit_and_execute_docker_command "$@"
