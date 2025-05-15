@@ -7,7 +7,6 @@ ENV DEBUG=false \
     MINIO_ADMIN_PASSWORD='' \
     MINIO_ALIAS=minio \
     MINIO_HOST='' \
-    MINIO_POLICY_PATH='/policies/readwrite-bucket.json' \
     MINIO_USER_ACCESS_KEY='' \
     MINIO_USER_BUCKET_NAME='' \
     MINIO_USER_BUCKET_PERMISSIONS='s3:ListBucket,s3:GetBucketLocation,s3:ListBucketMultipartUploads' \

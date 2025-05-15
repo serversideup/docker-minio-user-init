@@ -10,7 +10,6 @@ if [ "$DEBUG" = "true" ]; then
 fi
 
 mc_cmd="mc $debug_flag"
-minio_policy_name=$(basename "$MINIO_POLICY_PATH" .json | tr '[:upper:]' '[:lower:]' | tr -cd '[:alnum:]-_')
 ################################################################################
 # Functions
 ################################################################################
@@ -52,7 +51,7 @@ check_policy_exists() {
     local policy_list
     policy_list=$($mc_cmd admin policy list)
     case "$policy_list" in
-        *"$minio_policy_name"*) return 0 ;;
+        *"$MINIO_POLICY_NAME"*) return 0 ;;
         *) return 1 ;;
     esac
 }
@@ -80,13 +79,13 @@ $mc_cmd mb "$MINIO_ALIAS/$MINIO_USER_BUCKET_NAME" --ignore-existing
 
 # Create policy if it doesn't exist
 if ! check_policy_exists; then
-    echo "NOTICE: Policy $minio_policy_name not found. Creating..."
-    $mc_cmd admin policy create "$MINIO_ALIAS" "$minio_policy_name" "$MINIO_POLICY_PATH"
+    echo "NOTICE: Policy $MINIO_POLICY_NAME not found. Creating..."
+    $mc_cmd admin policy create "$MINIO_ALIAS" "$MINIO_POLICY_NAME" "$MINIO_POLICY_PATH"
 fi
 
 # Create user and apply policy
-$mc_cmd admin user add "$MINIO_ALIAS" "$MINIO_USER_ACCESS_KEY" "$minio_policy_name"
-$mc_cmd admin policy attach "$MINIO_ALIAS" "$minio_policy_name" --user "$MINIO_USER_ACCESS_KEY"
+$mc_cmd admin user add "$MINIO_ALIAS" "$MINIO_USER_ACCESS_KEY" "$MINIO_USER_SECRET_KEY"
+$mc_cmd admin policy attach "$MINIO_ALIAS" "$MINIO_POLICY_NAME" --user "$MINIO_USER_ACCESS_KEY"
 
 # Sleep or exit
 sleep_or_exit

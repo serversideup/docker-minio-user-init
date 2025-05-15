@@ -1,6 +1,11 @@
 #!/bin/bash
 set -e
 MINIO_ACCESS_KEY_EXISTS=false
+MINIO_POLICY_PATH=${MINIO_POLICY_PATH:-"/policies/readwrite-bucket-${MINIO_USER_BUCKET_NAME}.json"}
+MINIO_POLICY_NAME=$(basename "$MINIO_POLICY_PATH" .json | tr '[:upper:]' '[:lower:]' | tr -cd '[:alnum:]-_')
+
+export MINIO_POLICY_PATH
+export MINIO_POLICY_NAME
 
 if [ "$DEBUG" = "true" ]; then
     set -x

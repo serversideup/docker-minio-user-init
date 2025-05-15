@@ -7,23 +7,7 @@ if [ "$DEBUG" = "true" ]; then
 fi
 
 echo "Starting health check..."
-
-# Get policy name from path
-minio_policy_name=$(basename "$MINIO_POLICY_PATH" .json | tr '[:upper:]' '[:lower:]' | tr -cd '[:alnum:]-_')
-echo "Checking for policy: $minio_policy_name"
-
-# Check if alias exists
-echo "Checking MinIO alias..."
-alias_list=$(mc alias list)
-case "$alias_list" in
-    *"$MINIO_ALIAS"*) 
-        echo "✅ MinIO alias found"
-        ;;
-    *)
-        echo "ERROR: MinIO alias $MINIO_ALIAS not found"
-        exit 1
-        ;;
-esac
+echo "Checking for policy: $MINIO_POLICY_NAME"
 
 # Check if user exists
 echo "Checking MinIO user..."
@@ -42,11 +26,11 @@ esac
 echo "Checking MinIO policy..."
 policy_list=$(mc admin policy list "$MINIO_ALIAS")
 case "$policy_list" in
-    *"$minio_policy_name"*)
+    *"$MINIO_POLICY_NAME"*)
         echo "✅ MinIO policy found"
         ;;
     *)
-        echo "ERROR: MinIO policy $minio_policy_name not found"
+        echo "ERROR: MinIO policy $MINIO_POLICY_NAME not found"
         exit 1
         ;;
 esac
