@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-MINIO_USER_EXISTS=false
+MINIO_ACCESS_KEY_EXISTS=false
 
 if [ "$DEBUG" = "true" ]; then
     set -x
@@ -75,7 +75,7 @@ EOF
 }
 
 exit_and_execute_docker_command() {
-    export MINIO_USER_EXISTS
+    export MINIO_ACCESS_KEY_EXISTS
     exec "$@"
 }
 
@@ -98,7 +98,7 @@ validate_environment_variables() {
         MINIO_USER_BUCKET_PERMISSIONS
         MINIO_USER_OBJECT_PERMISSIONS
         MINIO_USER_SECRET_KEY
-        MINIO_USER_USERNAME
+        MINIO_USER_ACCESS_KEY
     "
 
     for var in $required_vars; do
@@ -158,9 +158,9 @@ set_mc_alias
 validate_minio_connection
 
 # Check to see if user exists
-if mc admin user ls "$MINIO_ALIAS" | grep -q "$MINIO_USER_USERNAME"; then
-    echo "NOTICE: Detected that user $MINIO_USER_USERNAME already exists."
-    MINIO_USER_EXISTS=true
+if mc admin user ls "$MINIO_ALIAS" | grep -q "$MINIO_USER_ACCESS_KEY"; then
+    echo "NOTICE: Detected that user $MINIO_USER_ACCESS_KEY already exists."
+    MINIO_ACCESS_KEY_EXISTS=true
     exit_and_execute_docker_command "$@"
 fi
 

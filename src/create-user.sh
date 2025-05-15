@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-MINIO_USER_EXISTS=${MINIO_USER_EXISTS:-false}
+MINIO_ACCESS_KEY_EXISTS=${MINIO_ACCESS_KEY_EXISTS:-false}
 
 # Debug
 debug_flag=""
@@ -43,8 +43,8 @@ sleep_or_exit() {
 # Support CTRL+C
 trap cleanup TERM INT
 
-if [ "$MINIO_USER_EXISTS" = "true" ]; then
-    echo "NOTICE: User $MINIO_USER_USERNAME already exists. No changes will be made."
+if [ "$MINIO_ACCESS_KEY_EXISTS" = "true" ]; then
+    echo "NOTICE: The access key \"$MINIO_USER_ACCESS_KEY\" already exists. No changes will be made."
     sleep_or_exit
 fi
 
@@ -64,8 +64,8 @@ if ! $mc_cmd admin policy list | grep -q "$minio_policy_name"; then
 fi
 
 # Create user and apply policy
-$mc_cmd admin user create "$MINIO_ALIAS" "$MINIO_USER_USERNAME" "$minio_policy_name"
-$mc_cmd admin policy attach "$MINIO_ALIAS" "$minio_policy_name" "$MINIO_USER_USERNAME"
+$mc_cmd admin user create "$MINIO_ALIAS" "$MINIO_USER_ACCESS_KEY" "$minio_policy_name"
+$mc_cmd admin policy attach "$MINIO_ALIAS" "$minio_policy_name" "$MINIO_USER_ACCESS_KEY"
 
 # Sleep or exit
 sleep_or_exit

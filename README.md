@@ -10,16 +10,13 @@
 </p>
 
 # Minio User Init Docker Image
+This image is used to initialize a user and a bucket in Minio. This project is very helpful when you need to automatically provision users in a new MinIO instance, similar to how you would initialize a database with MySQL, PostgreSQL, etc.
 
-This image is used to initialize a user in Minio. This is very helpful when you need to automatically provision users in a new MinIO instance. It's based off the [official Minio "mc" image](https://hub.docker.com/r/minio/mc) with some modifications to make it more flexible and configurable.
+ It's based off the [official Minio "mc" image](https://hub.docker.com/r/minio/mc) with some modifications to make it more flexible and configurable.
 
 | Docker Image | Size |
 |-------------|------|
 | [serversideup/minio-user-init](https://hub.docker.com/r/serversideup/minio-user-init) | ![Docker Image Size](https://img.shields.io/docker/image-size/serversideup/minio-user-init/latest?style=flat-square) |
-
-## Base Image
-
-The image is based on `minio/mc:latest`, providing a stable and up-to-date environment for running MinIO client commands.
 
 ## Features
 
@@ -28,7 +25,7 @@ The image is based on `minio/mc:latest`, providing a stable and up-to-date envir
 - Customizable configuration via environment variables
 - Support for existing user detection
 - Debug mode for troubleshooting
-- Native Docker health checks to ensure the server is running
+- Native Docker health checks to ensure everything is working
 
 ### Works great for orchestrated deployments
 
@@ -36,13 +33,12 @@ We designed this image to work great in orchestrated deployments like Kubernetes
 
 ```yaml
   minio-user-init:
-    image: serversideup/minio-user-init
+    image: serversideup/minio-user-init:latest
     environment:
       MINIO_ADMIN_USER: "${MINIO_ADMIN_USER}"
       MINIO_ADMIN_PASSWORD: "${MINIO_ADMIN_PASSWORD}"
       MINIO_ALIAS: "myminio"
-      MINIO_HOST: "https://minio.example.com"
-      MINIO_USER_USERNAME: "myuser"
+      MINIO_HOST: "https://minio.example.com:9000"
       MINIO_USER_ACCESS_KEY: "myaccesskey"
       MINIO_USER_SECRET_KEY: "mysecretkey"
       MINIO_USER_BUCKET_NAME: "mybucket"
@@ -54,35 +50,61 @@ We designed this image to work great in orchestrated deployments like Kubernetes
 
 The following environment variables can be used to customize the MinIO user initialization:
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `MINIO_ADMIN_USER` | Admin username for MinIO | Yes |
-| `MINIO_ADMIN_PASSWORD` | Admin password for MinIO | Yes |
-| `MINIO_ALIAS` | Alias for the MinIO server | Yes |
-| `MINIO_HOST` | MinIO server URL | Yes |
-| `MINIO_USER_USERNAME` | Username for the new user | Yes |
-| `MINIO_USER_ACCESS_KEY` | Access key for the new user | Yes |
-| `MINIO_USER_SECRET_KEY` | Secret key for the new user | Yes |
-| `MINIO_USER_BUCKET_NAME` | Name of the bucket to create | Yes |
-| `MINIO_USER_BUCKET_PERMISSIONS` | Comma-separated list of bucket permissions | Yes |
-| `MINIO_USER_OBJECT_PERMISSIONS` | Comma-separated list of object permissions | Yes |
-| `MINIO_POLICY_PATH` | Path to store the policy file | Yes |
-| `DEBUG` | Enable debug mode | No |
-| `SLEEP` | Keep container running after initialization | No |
+| Variable | Description |  Default |
+|----------|-------------|---------|
+| `MINIO_ADMIN_USER` | Admin username for MinIO. If you're deploying a new instance, it will likely be the same as your `MINIO_ROOT_USER` when you first deployed MinIO. | ⚠️ Required |
+| `MINIO_ADMIN_PASSWORD` | Admin password for MinIO. If you're deploying a new instance, it will likely be the same as your `MINIO_ROOT_PASSWORD` when you first deployed MinIO. | ⚠️ Required |
+| `MINIO_HOST` | MinIO server URL | ⚠️ Required |
+| `MINIO_USER_ACCESS_KEY` | The access key that uniquely identifies the new user, similar to a username. | ⚠️ Required |
+| `MINIO_USER_SECRET_KEY` | Secret key for the new user. This key should be unique, greater than 12 characters, and a complex mixture of characters, numerals, and symbols. | ⚠️ Required |
+| `MINIO_USER_BUCKET_NAME` | Name of the bucket to create | ⚠️ Required |
+| `MINIO_ALIAS` | Alias for the MinIO server | `minio` |
+| `MINIO_USER_BUCKET_PERMISSIONS` | Comma-separated list of bucket permissions | `s3:ListBucket,s3:GetBucketLocation,s3:ListBucketMultipartUploads` |
+| `MINIO_USER_OBJECT_PERMISSIONS` | Comma-separated list of object permissions | `s3:PutObject,s3:GetObject,s3:DeleteObject,s3:ListMultipartUploadParts,s3:AbortMultipartUpload` |
+| `MINIO_POLICY_PATH` | Path to store the policy file. This file will be created if it doesn't exist. | `/policies/readwrite-bucket.json` |
+| `DEBUG` | Enable debug mode | `false` |
+| `SLEEP` | Keep container running after initialization | `true` |
 
-### Available Permissions
+### Default Permissions
+This policy provides the following permissions:
+- **Bucket Level**: Ability to list the bucket contents and get its location
+- **Object Level**: Ability to upload and download objects
 
-Common bucket permissions:
-- `s3:ListBucket`
-- `s3:GetBucketLocation`
-- `s3:ListBucketMultipartUploads`
+You can customize these permissions by setting the `MINIO_USER_BUCKET_PERMISSIONS` and `MINIO_USER_OBJECT_PERMISSIONS` environment variables.
 
-Common object permissions:
-- `s3:PutObject`
-- `s3:GetObject`
-- `s3:DeleteObject`
-- `s3:ListMultipartUploadParts`
-- `s3:AbortMultipartUpload`
+By default, we create a policy that looks like this:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListBucket",
+        "s3:GetBucketLocation",
+        "s3:ListBucketMultipartUploads"
+      ],
+      "Resource": [
+        "arn:aws:s3:::${MINIO_USER_BUCKET_NAME}"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:DeleteObject",
+        "s3:ListMultipartUploadParts",
+        "s3:AbortMultipartUpload"
+      ],
+      "Resource": [
+        "arn:aws:s3:::${MINIO_USER_BUCKET_NAME}/*"
+      ]
+    }
+  ]
+}
+```
 
 ## Usage
 
@@ -94,12 +116,10 @@ Common object permissions:
 2. Run the container with the required environment variables:
 
    ```sh
-   docker run \
+   docker run --rm\
     -e MINIO_ADMIN_USER="admin" \
     -e MINIO_ADMIN_PASSWORD="adminpassword" \
-    -e MINIO_ALIAS="myminio" \
     -e MINIO_HOST="http://minio:9000" \
-    -e MINIO_USER_USERNAME="myuser" \
     -e MINIO_USER_ACCESS_KEY="myaccesskey" \
     -e MINIO_USER_SECRET_KEY="mysecretkey" \
     -e MINIO_USER_BUCKET_NAME="mybucket" \
