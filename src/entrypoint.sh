@@ -121,16 +121,6 @@ set_mc_alias() {
     debug_print "Set alias with: mc alias set $MINIO_ALIAS $MINIO_HOST $MINIO_ADMIN_USER **********"
 }
 
-validate_minio_connection() {
-    debug_print "Validating MinIO connection..."
-    if ! mc admin info "$MINIO_ALIAS" &>/dev/null; then
-        echo "Error: Unable to connect to MinIO instance at $MINIO_HOST"
-        echo "Please check the hostname and admin credentials"
-        exit 1
-    fi
-    debug_print "Successfully connected to MinIO instance"
-}
-
 ################################################################################
 # Main
 ################################################################################
@@ -155,7 +145,6 @@ mc --version
 echo "-----------------------------------------------------------"
 
 set_mc_alias
-validate_minio_connection
 
 # Check to see if user exists
 if mc admin user ls "$MINIO_ALIAS" | grep -q "$MINIO_USER_ACCESS_KEY"; then
