@@ -116,7 +116,7 @@ By default, we create a policy that looks like this:
 2. Run the container with the required environment variables:
 
    ```sh
-   docker run --rm\
+   docker run --rm \
     -e MINIO_ADMIN_USER="admin" \
     -e MINIO_ADMIN_PASSWORD="adminpassword" \
     -e MINIO_HOST="http://minio:9000" \
