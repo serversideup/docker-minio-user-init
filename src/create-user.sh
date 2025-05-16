@@ -19,6 +19,24 @@ cleanup() {
     exit 0
 }
 
+check_alias_exists() {
+    local alias_list
+    alias_list=$($mc_cmd alias list)
+    case "$alias_list" in
+        *"$MINIO_ALIAS"*) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+check_policy_exists() {
+    local policy_list
+    policy_list=$($mc_cmd admin policy list)
+    case "$policy_list" in
+        *"$MINIO_POLICY_NAME"*) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
 debug_print() {
     if [ "$DEBUG" = "true" ]; then
         echo "$1"
@@ -36,24 +54,6 @@ sleep_or_exit() {
         echo "✅ MinIO user, bucket, and policy created successfully. Exiting..."
         exit 0
     fi
-}
-
-check_alias_exists() {
-    local alias_list
-    alias_list=$($mc_cmd alias list)
-    case "$alias_list" in
-        *"$MINIO_ALIAS"*) return 0 ;;
-        *) return 1 ;;
-    esac
-}
-
-check_policy_exists() {
-    local policy_list
-    policy_list=$($mc_cmd admin policy list)
-    case "$policy_list" in
-        *"$MINIO_POLICY_NAME"*) return 0 ;;
-        *) return 1 ;;
-    esac
 }
 
 ################################################################################

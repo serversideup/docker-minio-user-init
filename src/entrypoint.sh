@@ -15,6 +15,15 @@ fi
 # Functions
 ################################################################################
 
+check_user_exists() {
+    local user_list
+    user_list=$(mc admin user ls "$MINIO_ALIAS")
+    case "$user_list" in
+        *"$MINIO_USER_ACCESS_KEY"*) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
 create_policy() {
     policy_path="$1"
 
@@ -79,24 +88,21 @@ EOF
     
 }
 
-exit_and_execute_docker_command() {
-    export MINIO_ACCESS_KEY_EXISTS
-    exec "$@"
-}
-
 debug_print() {
     if [ "$DEBUG" = "true" ]; then
         echo "$1"
     fi
 }
 
-check_user_exists() {
-    local user_list
-    user_list=$(mc admin user ls "$MINIO_ALIAS")
-    case "$user_list" in
-        *"$MINIO_USER_ACCESS_KEY"*) return 0 ;;
-        *) return 1 ;;
-    esac
+exit_and_execute_docker_command() {
+    export MINIO_ACCESS_KEY_EXISTS
+    exec "$@"
+}
+
+set_mc_alias() {
+    debug_print "Setting mc alias..."
+    mc alias set "$MINIO_ALIAS" "$MINIO_HOST" "$MINIO_ADMIN_USER" "$MINIO_ADMIN_PASSWORD"
+    debug_print "Set alias with: mc alias set $MINIO_ALIAS $MINIO_HOST $MINIO_ADMIN_USER **********"
 }
 
 validate_environment_variables() {
@@ -126,12 +132,6 @@ validate_environment_variables() {
         echo "Error: MINIO_POLICY_PATH must end in .json"
         exit 1
     fi
-}
-
-set_mc_alias() {
-    debug_print "Setting mc alias..."
-    mc alias set "$MINIO_ALIAS" "$MINIO_HOST" "$MINIO_ADMIN_USER" "$MINIO_ADMIN_PASSWORD"
-    debug_print "Set alias with: mc alias set $MINIO_ALIAS $MINIO_HOST $MINIO_ADMIN_USER **********"
 }
 
 ################################################################################
