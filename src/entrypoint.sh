@@ -16,12 +16,11 @@ fi
 ################################################################################
 
 check_user_exists() {
-    local user_list
-    user_list=$(mc admin user ls "$MINIO_ALIAS")
-    case "$user_list" in
-        *"$MINIO_USER_ACCESS_KEY"*) return 0 ;;
-        *) return 1 ;;
-    esac
+    local user_json
+    user_json=$(mc admin user ls "$MINIO_ALIAS" --json)
+    user_json=${user_json#*\"accessKey\":\"}
+    local access_key=${user_json%%\"*}
+    [ "$access_key" = "$MINIO_USER_ACCESS_KEY" ]
 }
 
 create_policy() {

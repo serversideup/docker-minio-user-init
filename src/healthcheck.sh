@@ -11,16 +11,16 @@ echo "Checking for policy: $MINIO_POLICY_NAME"
 
 # Check if user exists
 echo "Checking MinIO user..."
-user_list=$(mc admin user ls "$MINIO_ALIAS")
-case "$user_list" in
-    *"$MINIO_USER_ACCESS_KEY"*)
-        echo "✅ MinIO user found"
-        ;;
-    *)
-        echo "ERROR: MinIO user $MINIO_USER_ACCESS_KEY not found"
-        exit 1
-        ;;
-esac
+user_json=$(mc admin user ls "$MINIO_ALIAS" --json)
+# Extract accessKey from JSON using bash string manipulation
+user_json=${user_json#*\"accessKey\":\"}
+access_key=${user_json%%\"*}
+if [ "$access_key" = "${MINIO_USER_ACCESS_KEY}" ]; then
+    echo "✅ MinIO user found"
+else
+    echo "ERROR: MinIO user ${MINIO_USER_ACCESS_KEY} not found"
+    exit 1
+fi
 
 # Check if policy exists
 echo "Checking MinIO policy..."
