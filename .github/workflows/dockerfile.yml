@@ -1,0 +1,17 @@
+name: Dockerfile
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  hadolint:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: git checkout
+        uses: actions/checkout@v4
+
+      - name: Check Dockerfiles
+        uses: hadolint/hadolint-action@v3.1.0
