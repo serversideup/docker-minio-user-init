@@ -144,6 +144,7 @@ Need help getting started? Join our Discord community and we'll help you out!
 
 <a href="https://serversideup.net/discord"><img src="https://serversideup.net/wp-content/themes/serversideup/images/open-source/join-discord.svg" title="Join Discord"></a>
 
+<!-- serversideup-sponsors -->
 ## Our Sponsors
 All of our software is free an open to the world. None of this can be brought to you without the financial backing of our sponsors.
 
@@ -158,6 +159,9 @@ All of our software is free an open to the world. None of this can be brought to
 #### Individual Supporters
 <!-- supporters --><a href="https://github.com/aagjalpankaj"><img src="https://github.com/aagjalpankaj.png" width="40px" alt="aagjalpankaj" /></a>&nbsp;&nbsp;<!-- supporters -->
 
+<!-- serversideup-sponsors -->
+
+<!-- serversideup-about -->
 ## About Us
 We're [Dan](https://twitter.com/danpastori) and [Jay](https://twitter.com/jaydrogers) - a two person team with a passion for open source products. We created [Server Side Up](https://serversideup.net) to help share what we learn.
 
@@ -194,3 +198,4 @@ If you appreciate this project, be sure to check out our other projects.
 - **[AmplitudeJS](https://521dimensions.com/open-source/amplitudejs)**: Open-source HTML5 & JavaScript Web Audio Library.
 - **[Spin](https://serversideup.net/open-source/spin/)**: Laravel Sail alternative for running Docker from development → production.
 - **[Financial Freedom](https://github.com/serversideup/financial-freedom)**: Open source alternative to Mint, YNAB, & Monarch Money.
+<!-- serversideup-about -->
