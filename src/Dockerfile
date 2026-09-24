@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # check=skip=SecretsUsedInArgOrEnv
-FROM minio/mc:latest
+FROM pgsty/mc:latest
 
 ENV DEBUG=false \
     MINIO_ADMIN_USER='' \

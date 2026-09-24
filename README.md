@@ -12,7 +12,7 @@
 # Minio User Init Docker Image
 This image is used to initialize a user and a bucket in Minio. This project is very helpful when you need to automatically provision users in a new MinIO instance, similar to how you would initialize a database with MySQL, PostgreSQL, etc.
 
- It's based off the [official Minio "mc" image](https://hub.docker.com/r/minio/mc) with some modifications to make it more flexible and configurable.
+It's based off the [community-maintained "mc" image from PGSTY](https://hub.docker.com/r/pgsty/mc) with some modifications to make it more flexible and configurable.
 
 | Docker Image | Size |
 |-------------|------|
